@@ -1,0 +1,11 @@
+# Secrets
+.env
+.env.local
+.env.*.local
+
+# Show template
+!.env.example
+
+# Data files (may contain PII)
+data/
+output/
