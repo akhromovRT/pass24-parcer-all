@@ -45,33 +45,73 @@ VK_RE = re.compile(r"https?://(?:www\.)?vk\.com/([\w.\-]+)")
 TG_RE = re.compile(r"https?://(?:www\.)?t(?:elegram)?\.me/([\w.\-]+)")
 WA_RE = re.compile(r"https?://(?:wa\.me|api\.whatsapp\.com/send)[/?][\w=&%+]+")
 
-# ─── Домены-агрегаторы (пропускать при скрапинге) ────────────────────────────
+# ─── Домены-агрегаторы и нерелевантные (пропускать при скрапинге) ─────────────
 
 SKIP_DOMAINS = {
-    "avito.ru",
-    "yandex.ru",
-    "yandex.com",
-    "google.com",
-    "google.ru",
-    "zoon.ru",
-    "profi.ru",
-    "youdo.com",
-    "vk.com",
-    "instagram.com",
-    "ok.ru",
-    "hh.ru",
-    "otzovik.com",
-    "irecommend.ru",
-    "flamp.ru",
-    "wikipedia.org",
-    "youtube.com",
-    "dzen.ru",
-    "mail.ru",
-    "bing.com",
-    "duckduckgo.com",
-    "facebook.com",
-    "cian.ru",
-    "domclick.ru",
+    # Поисковики и агрегаторы
+    "avito.ru", "yandex.ru", "yandex.com", "google.com", "google.ru",
+    "bing.com", "duckduckgo.com", "mail.ru", "rambler.ru",
+    # Соцсети
+    "vk.com", "ok.ru", "instagram.com", "facebook.com", "tiktok.com",
+    "youtube.com", "dzen.ru", "t.me", "telegram.me",
+    # Работа и услуги
+    "hh.ru", "headhunter.ru", "superjob.ru", "zoon.ru", "profi.ru", "youdo.com",
+    # Отзывы и рейтинги
+    "otzovik.com", "irecommend.ru", "flamp.ru", "tripadvisor.ru",
+    # Новости и СМИ
+    "rbc.ru", "realty.rbc.ru", "kp.ru", "lenta.ru", "ria.ru", "tass.ru",
+    "kommersant.ru", "iz.ru", "gazeta.ru", "vedomosti.ru",
+    "banki.ru", "forbes.ru", "bfm.ru",
+    # Справочники и энциклопедии
+    "wikipedia.org", "wiktionary.org", "dic.academic.ru", "kartaslov.ru",
+    "gramota.ru", "consultant.ru", "garant.ru",
+    # Финансы и банки
+    "alfabank.ru", "kurs.alfabank.ru", "sberbank.ru", "tinkoff.ru",
+    # Недвижимость (агрегаторы, не сайты КП)
+    "cian.ru", "domclick.ru", "restate.ru", "novostroy.ru", "mirkvartir.ru",
+    "domofond.ru", "m2.ru", "etagi.com", "emls.ru",
+    # Юридические и бизнес-порталы
+    "law.ru", "klerk.ru", "buh.ru", "nalog.ru",
+    # Технические/IT
+    "habr.com", "vc.ru", "pikabu.ru", "geekbrains.ru",
+    # Международные (DDG иногда уводит)
+    "t-online.de", "telekom.de", "theplanetsworld.com", "tripzaza.com",
+    "usnews.com", "infotour.ro", "guias-viajar.com",
+    # Украинские ТВ (DDG путает "ТСН" с телеканалом)
+    "tsn.ua", "1plus1.ua", "1plus1.video", "liveam.tv",
+    # Прочие нерелевантные
+    "okdesk.ru", "snrd.ru", "avadom.ru",
+    "finance.rambler.ru", "sanstv.ru", "slova-znachenie.ru",
+    "remontka.pro", "businesscommandos.ru", "sky.pro", "skypro.ru",
+    "gtmarket.ru", "investfuture.ru", "gogov.ru", "fssp.gov.ru",
+}
+
+# ─── Ключевые слова релевантности КП ────────────────────────────────────────
+# Результат считается релевантным, если содержит ХОТЯ БЫ ОДНО слово из PRIMARY
+# ИЛИ содержит два и более слов из SECONDARY (одно secondary = нерелевантно)
+
+KP_RELEVANCE_PRIMARY = {
+    "коттеджный поселок", "коттеджный посёлок", "коттеджного поселка",
+    "коттеджных поселков", "коттеджном поселке",
+    " кп ", "днп ",
+}
+
+KP_RELEVANCE_SECONDARY = {
+    "тсн", "снт", "тсж",
+    "поселок", "посёлок", "поселка",
+    "председател", "правлени",
+    "управляющ", "управление поселк",
+    "пропуск", "шлагбаум", "кпп", "охран",
+}
+
+# Антислова — если есть, результат точно нерелевантный
+KP_RELEVANCE_BLACKLIST = {
+    "новости тсн", "tsn.ua", "1plus1", "1+1",
+    "windows", "computer", "python", "javascript",
+    "мвд", "фссп", "суд ", "прокуратур",
+    "курс", "обучен", "tutorial",
+    "boston", "travel", "hotel", "tourism",
+    "t-online", "telekom",
 }
 
 # ─── Slug'и контактных страниц ───────────────────────────────────────────────
