@@ -10,6 +10,7 @@ dependencies = [
     "pandas>=2.2",
     "pydantic>=2.7",
     "python-dotenv>=1.0",
+    "duckduckgo_search>=8.0",
 ]
 
 [project.optional-dependencies]
