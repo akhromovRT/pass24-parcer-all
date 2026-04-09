@@ -1,8 +1,10 @@
 """CLI точка входа — запуск парсера.
 
 Использование:
-  python -m pass24_parser                      # полный запуск MVP
+  python -m pass24_parser                      # полный запуск (seed + DDG)
   python -m pass24_parser --region moscow_oblast
+  python -m pass24_parser --seed-only          # только seed-список (быстро)
+  python -m pass24_parser --ddg-only           # только DDG-поиск
   python -m pass24_parser --export-only        # экспорт из БД без парсинга
   python -m pass24_parser --stats              # показать статистику БД
 """
@@ -27,6 +29,16 @@ def parse_args() -> argparse.Namespace:
         "--region",
         default="moscow_oblast",
         help="Целевой регион (default: moscow_oblast)",
+    )
+    p.add_argument(
+        "--seed-only",
+        action="store_true",
+        help="Только seed-список URL (без DDG-поиска)",
+    )
+    p.add_argument(
+        "--ddg-only",
+        action="store_true",
+        help="Только DDG-поиск (без seed-списка)",
     )
     p.add_argument(
         "--export-only",
@@ -55,9 +67,10 @@ def setup_logging(verbose: bool = False):
     )
 
 
-async def run_pipeline(region: str):
+async def run_pipeline(region: str, seed_only: bool = False, ddg_only: bool = False):
     """Запускает полный пайплайн: сбор → нормализация → обогащение → дедупликация → квалификация → экспорт."""
-    from pass24_parser.collectors.twogis import TwoGisCollector
+    from pass24_parser.collectors.ddg_search import DdgSearchCollector
+    from pass24_parser.collectors.seed_urls import SeedUrlCollector
     from pass24_parser.deduplicator import deduplicate
     from pass24_parser.enricher import enrich_contact
     from pass24_parser.exporters.bitrix24 import export_to_csv
@@ -70,24 +83,36 @@ async def run_pipeline(region: str):
     storage = Storage()
     today = date.today().strftime("%Y-%m-%d")
 
+    mode = "seed" if seed_only else ("DDG" if ddg_only else "seed + DDG")
     sep = "=" * 60
     print(sep)
     print("  PASS24 Parser — MVP")
     print(f"  Регион: {region}")
+    print(f"  Режим: {mode}")
     print(f"  Дата: {today}")
     print(sep)
 
     try:
-        # 1. Сбор
-        print("\n[1/5] Сбор данных из 2GIS...")
-        collector = TwoGisCollector()
-        result = await collector.collect(region)
-        print(f"  Собрано: {len(result.contacts)} записей")
-        if result.errors:
-            for err in result.errors:
-                print(f"  ⚠ {err}")
+        all_contacts = []
 
-        all_contacts = result.contacts
+        # 1a. Сбор из seed-списка
+        if not ddg_only:
+            print("\n[1/5] Сбор данных из seed-списка URL...")
+            seed_collector = SeedUrlCollector()
+            seed_result = await seed_collector.collect(region)
+            all_contacts.extend(seed_result.contacts)
+            print(f"  [Seed] Собрано: {len(seed_result.contacts)} записей")
+
+        # 1b. Сбор через DDG
+        if not seed_only:
+            print("\n[1/5] Сбор данных через DuckDuckGo...")
+            ddg_collector = DdgSearchCollector(max_results=50, scrape=True)
+            ddg_result = await ddg_collector.collect(region)
+            all_contacts.extend(ddg_result.contacts)
+            print(f"  [DDG] Собрано: {len(ddg_result.contacts)} записей")
+
+        total_raw = len(all_contacts)
+        print(f"\n  Итого сырых: {total_raw}")
 
         # 2. Нормализация
         print("\n[2/5] Нормализация...")
@@ -120,7 +145,7 @@ async def run_pipeline(region: str):
         print(f"\n{sep}")
         print("  РЕЗУЛЬТАТЫ")
         print(sep)
-        print(f"  Собрано сырых:       {len(result.contacts)}")
+        print(f"  Собрано сырых:       {total_raw}")
         print(f"  После дедупликации:  {len(all_contacts)}")
         print(f"  Квалифицировано:     {len(qualified)}")
         print(f"  Всего в БД:          {stats['total_contacts']}")
@@ -173,7 +198,11 @@ def main():
     elif args.export_only:
         asyncio.run(export_only(args.region))
     else:
-        asyncio.run(run_pipeline(args.region))
+        asyncio.run(run_pipeline(
+            args.region,
+            seed_only=args.seed_only,
+            ddg_only=args.ddg_only,
+        ))
 
 
 if __name__ == "__main__":

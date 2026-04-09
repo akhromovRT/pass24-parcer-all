@@ -1,0 +1,102 @@
+# Seed-список URL сайтов КП Московской области
+# Формат: URL # Название КП/ТСН
+# Источник: WebSearch + ручная проверка
+# Дата обновления: 2026-04-09
+# Всего: 72 URL
+
+# ── Проверенные при тестировании парсера ─────────────────────
+https://pokrov-vorota.ru/ # КП Покровские ворота
+https://aksakovo.online/ # КП Аксаково
+https://kpmastergrad.ru/ # КП Мастерград
+https://seamoscow.ru/ # УК Московское Море
+https://poselok-varezhki.ru/ # КП Варежки
+http://belbereg.ru/ # КП Белый Берег
+https://poselok-evropa.ru/ # КП Европа
+https://valensia.ru/ # КП Валенсия
+http://www.gayd-park.ru/ # КП Гайд Парк
+http://www.usadba-romantsevo.ru/ # КП Усадьба Романцево
+http://www.poselok-idilliya.ru/ # КП Идиллия
+https://kp-nikolskoe.ru/ # КП Никольское
+
+# ── Новорижское шоссе (WebSearch) ───────────────────────────
+https://poselok-novorizhskiy.ru/ # КП Новорижский
+https://arthouse-les.ru/ # КП Арт Хаус
+https://renessans-park-premium.ru/ # КП Ренессанс Парк
+https://millennium-park.ru/ # КП Миллениум Парк
+https://domagreenfield.ru/ # КП Гринфилд
+https://art-eco.net/ # КП Арт Эко
+https://knyazhye-ozero.com/ # КП Княжье Озеро
+https://souverain.ru/ # КП Шато Соверен
+https://www.sloboda-nikolskaya.ru/ # КП Никольская Слобода
+https://sherwoodkp.ru/ # КП Шервуд
+https://monte-ville.com/ # КП Монтевиль
+https://www.kp-opushkino.ru/ # КП Опушкино
+https://www.lamansh.ru/ # КП Ла-Манш
+https://es-park.ru/ # КП Эсквайр Парк
+https://tretya-ohota.ru/ # КП Третья Охота
+https://riversidekp.ru/ # КП Риверсайд
+https://p-cambridge.ru/ # КП Кембридж
+https://medison-park-dom.ru/ # КП Мэдисон Парк
+https://www.perelesky.ru/ # КП Перелески
+
+# ── Рублёво-Успенское шоссе ─────────────────────────────────
+https://parkville.moscow/ # КП ParkVille
+https://pavlovo-2.com/ # КП Павлово-2
+https://nikolino.ru/ # КП Николино
+https://nikolino-hills.ru/ # КП Николино Хиллз
+https://papushevo.ru/ # КП Папушево Парк
+https://zhukovka21.com/ # КП Жуковка XXI
+https://www.barviha-xxi.ru/ # КП Барвиха XXI
+https://agalarov-estate.moscow/ # КП Агаларов Эстейт
+https://www.grafskie-prudy.ru/ # КП Графские Пруды
+https://rubleffdevelopment.ru/property-detail-rubleff-village # КП Rubleff Village
+
+# ── Калужское шоссе ─────────────────────────────────────────
+https://prezident-poselok.ru/ # КП Президент
+https://bulatovoresidence.ru/ # КП Резиденция Булатово
+https://lesnoy-peyzazh.ru/ # КП Лесной Пейзаж
+https://lukomorye.pro/ # КП Лукоморье
+http://info.p-marsel.ru/ # КП Марсель
+
+# ── Дмитровское шоссе ──────────────────────────────────────
+https://dmitrov-pls.ru/ # КП Дмитровское Полесье
+https://izumrud-msk.ru/ # КП Изумрудный
+https://pestovoposelok.ru/ # КП Пестово
+https://monacovo.ru/ # КП Монаково
+https://fedoskino-park.ru/ # КП Федоскино Парк
+https://r-pestovo.ru/ # КП Резиденции Пестово
+
+# ── Минское шоссе ───────────────────────────────────────────
+https://bayside-residence.ru/ # КП Bayside Residence
+https://poselok-dvl.ru/ # КП Довиль
+
+# ── Киевское шоссе ──────────────────────────────────────────
+https://lesalleya.ru/ # КП Лесная Аллея
+https://kp-sudakovo.ru/ # КП Новое Судаково
+
+# ── Ленинградское шоссе ────────────────────────────────────
+https://highwoodresidence.life/ # КП Highwood Residence
+https://nikolskoe-3.ru/ # КП Никольское-Лесное
+https://www.asterra.ru/projects/tirol/ # КП Тироль
+https://www.asterra.ru/projects/dudkino/ # КП Дудкино
+
+# ── Симферопольское/Каширское шоссе ─────────────────────────
+https://kaskad-park.ru/ # КП Каскад Парк
+https://www.usupovo-lp.ru/ # КП Юсупово Лайф Парк
+https://lakesideresidence.life/ # КП Lakeside Residence
+https://kp-olimp.ru/ # КП Олимп
+
+# ── Другие направления ──────────────────────────────────────
+https://novieveshki.ru/ # КП Новые Вешки
+https://kp-greenvill.ru/ # КП Гринвилл
+https://poselok-britanika.ru/ # КП Британика
+https://zeleniymis.ru/ # КП Зеленый Мыс
+https://silver-grove.ru/ # КП Серебряная Роща
+https://kp-rogdestveno.ru/ # КП Рождествено
+https://crystalistra.ru/ # КП Кристал Истра
+https://residences-istra.ru/ # КП Резиденции Истра
+https://istra-dolina.ru/ # КП Истринская Долина
+https://www.malenkayaitaliya.ru/ # КП Маленькая Италия
+https://www.etude-club.ru/ # КП Etude Family Club
+http://www.zaprezident.ru/ # КП Западная Резиденция
+https://www.krasnaya-usadba.ru/ # КП Красная Усадьба

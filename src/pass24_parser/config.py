@@ -79,6 +79,26 @@ SKIP_DOMAINS = {
     "usnews.com", "infotour.ro", "guias-viajar.com",
     # Украинские ТВ (DDG путает "ТСН" с телеканалом)
     "tsn.ua", "1plus1.ua", "1plus1.video", "liveam.tv",
+    # Бизнес-реестры и банки (контакты из реестров — не контакты КП)
+    "audit-it.ru", "vbankcenter.ru", "tbank.ru", "rusprofile.ru",
+    "list-org.com", "sbis.ru", "checko.ru", "egrul.nalog.ru",
+    # Украинские сайты (DDG путает ТСН/ТСН-канал)
+    "24tv.ua", "tsn24.ru",
+    # Информационные порталы (не сайты КП)
+    "sntclub.ru", "4tsg.ru", "pandia.ru", "pandia.org",
+    "kutuzovskij.ru", "kpmedia.ru",
+    # Сервисные компании (не сами КП)
+    "spezremont.ru", "artstory-design.com", "serviceuk.ru",
+    # Каталоги недвижимости (дополнение)
+    "cottage.ru", "kottedzhnye-poselki-podmoskovya.ru",
+    "poselkimoskvy.ru", "domzamkad.ru", "peresvetovo1.ru",
+    "kf.expert", "gectaro.com", "rating.gd.ru",
+    # Агентства недвижимости (продают участки, не управляют КП)
+    "slrealty.ru", "choice-estate.ru", "ydacha.ru", "sit-company.ru",
+    "novostroy-m.ru", "omhome.ru", "move.ru", "rublevka-road.ru",
+    "poselki.ru", "poseloklife.ru",
+    # Обслуживающие компании (не сами КП)
+    "tehnic-servis.ru", "appes.ru", "life-service.info",
     # Прочие нерелевантные
     "okdesk.ru", "snrd.ru", "avadom.ru",
     "finance.rambler.ru", "sanstv.ru", "slova-znachenie.ru",
@@ -106,12 +126,21 @@ KP_RELEVANCE_SECONDARY = {
 
 # Антислова — если есть, результат точно нерелевантный
 KP_RELEVANCE_BLACKLIST = {
-    "новости тсн", "tsn.ua", "1plus1", "1+1",
+    "новости тсн", "tsn.ua", "1plus1", "1+1", "24 канал", "24tv",
     "windows", "computer", "python", "javascript",
     "мвд", "фссп", "суд ", "прокуратур",
     "курс", "обучен", "tutorial",
     "boston", "travel", "hotel", "tourism",
     "t-online", "telekom",
+    # Сервисные/консалтинговые
+    "юридическ", "бухгалтер", "аудит",
+    "ремонт квартир", "дизайн интерьер",
+    # Каталоги и рейтинги КП (не сами КП)
+    "рейтинг коттеджных", "лучших коттеджных", "топ коттеджных",
+    "обзор коттеджных", "каталог коттеджных",
+    # Информационные статьи
+    "как создать тсн", "как зарегистрировать", "регистрация тсн",
+    "что такое тсн", "что такое снт",
 }
 
 # ─── Slug'и контактных страниц ───────────────────────────────────────────────

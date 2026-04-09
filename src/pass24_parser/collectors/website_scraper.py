@@ -26,6 +26,97 @@ from pass24_parser.models import ParsedContact
 
 logger = logging.getLogger(__name__)
 
+# ─── Паттерны для извлечения ФИО ЛПР ───────────────────────────────────────
+
+import re
+
+# Роли ЛПР для поиска рядом с ФИО
+_ROLE_KEYWORDS = [
+    "председатель правления",
+    "председатель",
+    "директор",
+    "управляющ",
+    "генеральный директор",
+    "руководитель",
+]
+
+# ФИО: "Фамилия Имя Отчество" — три слова с заглавной буквы, кириллица
+_FIO_RE = re.compile(
+    r"([А-ЯЁ][а-яё]{1,25})\s+([А-ЯЁ][а-яё]{1,25})\s+([А-ЯЁ][а-яё]{1,25})"
+)
+# ФИО: "Фамилия И.О." или "Фамилия И. О."
+_FIO_SHORT_RE = re.compile(
+    r"([А-ЯЁ][а-яё]{1,25})\s+([А-ЯЁ])\.\s*([А-ЯЁ])\."
+)
+
+
+# Стоп-слова: если ФИО совпадает с этими, это не человек
+_FIO_STOP_WORDS = {
+    "реквизиты", "лицензия", "объекты", "контакты", "документы",
+    "главная", "новости", "услуги", "каталог", "описание",
+    "политика", "конфиденциальности", "согласие", "обработку",
+    "юридический", "фактический", "почтовый",
+    # Навигация сайта
+    "безопасность", "аэрофотосъемка", "статьи", "проекты", "фотогалерея",
+    "инфраструктура", "строительство", "благоустройство", "генплан",
+    "документация", "коммуникации", "расположение",
+}
+
+
+def _is_valid_fio(name: str) -> bool:
+    """Проверяет, что извлечённое ФИО — это действительно имя человека."""
+    parts = name.lower().split()
+    # Хотя бы 2 слова
+    if len(parts) < 2:
+        return False
+    # Ни одно слово не должно быть стоп-словом
+    if any(p in _FIO_STOP_WORDS for p in parts):
+        return False
+    # Каждое слово — 2+ буквы (не инициалы без точки)
+    if any(len(p) < 2 for p in parts if "." not in p):
+        return False
+    return True
+
+
+def _extract_person_name(soup: BeautifulSoup) -> tuple[str, str]:
+    """Извлекает ФИО и должность ЛПР из HTML.
+
+    Стратегия:
+    1. Ищет ключевые слова ролей (председатель, директор) в тексте
+    2. Рядом с ролью ищет ФИО паттерном (Фамилия Имя Отчество / Фамилия И.О.)
+    3. Валидирует, что найденное — действительно ФИО, а не навигация сайта
+    4. Возвращает первое найденное совпадение
+    """
+    full_text = soup.get_text(separator=" ")
+    # Нормализуем пробелы
+    full_text = re.sub(r"\s+", " ", full_text)
+
+    for role_kw in _ROLE_KEYWORDS:
+        # Ищем все вхождения ключевого слова роли
+        pattern = re.compile(re.escape(role_kw), re.IGNORECASE)
+        for match in pattern.finditer(full_text):
+            # Берём окно 150 символов после ключевого слова
+            start = match.start()
+            window = full_text[start : start + 200]
+
+            # Ищем полное ФИО
+            fio_match = _FIO_RE.search(window)
+            if fio_match:
+                name = f"{fio_match.group(1)} {fio_match.group(2)} {fio_match.group(3)}"
+                if _is_valid_fio(name):
+                    role = role_kw.capitalize()
+                    return name, role
+
+            # Ищем сокращённое ФИО
+            fio_short = _FIO_SHORT_RE.search(window)
+            if fio_short:
+                name = f"{fio_short.group(1)} {fio_short.group(2)}.{fio_short.group(3)}."
+                if _is_valid_fio(name):
+                    role = role_kw.capitalize()
+                    return name, role
+
+    return "", ""
+
 
 def get_domain(url: str) -> str:
     """Извлекает домен без www."""
@@ -122,6 +213,9 @@ def extract_contacts_from_html(soup: BeautifulSoup, base_url: str) -> dict:
     if og_desc:
         description = og_desc.get("content", "").strip()[:300]
 
+    # ФИО и должность ЛПР
+    contact_name, contact_role = _extract_person_name(soup)
+
     return {
         "phone": phone,
         "email": email,
@@ -130,6 +224,8 @@ def extract_contacts_from_html(soup: BeautifulSoup, base_url: str) -> dict:
         "whatsapp": whatsapp,
         "address": address,
         "description": description,
+        "contact_name": contact_name,
+        "contact_role": contact_role,
     }
 
 
@@ -206,8 +302,8 @@ async def scrape_website(url: str, object_name: str = "") -> Optional[ParsedCont
     org_name = get_org_name(soup)
     contacts = extract_contacts_from_html(soup, url)
 
-    # Если нет телефона — пробуем страницу контактов
-    if not contacts["phone"]:
+    # Если нет телефона или ФИО — пробуем страницу контактов
+    if not contacts["phone"] or not contacts.get("contact_name"):
         contact_url = find_contact_page(url, soup)
         if contact_url:
             resp2 = await fetch(contact_url)
@@ -215,8 +311,9 @@ async def scrape_website(url: str, object_name: str = "") -> Optional[ParsedCont
                 try:
                     soup2 = BeautifulSoup(resp2.text, "lxml")
                     contacts2 = extract_contacts_from_html(soup2, contact_url)
-                    for field in ("phone", "email", "address", "telegram", "vk_url", "whatsapp"):
-                        if not contacts[field] and contacts2[field]:
+                    for field in ("phone", "email", "address", "telegram", "vk_url", "whatsapp",
+                                  "contact_name", "contact_role"):
+                        if not contacts.get(field) and contacts2.get(field):
                             contacts[field] = contacts2[field]
                 except Exception:
                     pass
@@ -226,6 +323,8 @@ async def scrape_website(url: str, object_name: str = "") -> Optional[ParsedCont
         object_address=contacts.get("address", ""),
         contact_phone=contacts.get("phone", ""),
         contact_email=contacts.get("email", ""),
+        contact_name=contacts.get("contact_name", ""),
+        contact_role=contacts.get("contact_role", ""),
         org_name=org_name,
         sources=[url],
     )
