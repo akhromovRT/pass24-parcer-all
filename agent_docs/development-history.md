@@ -25,6 +25,22 @@
   - [x] `agent_docs/development-history.md`
 - **Следующие шаги:** ~~(выполнено в следующей итерации)~~
 
+### [2026-04-09 — Метаданные объектов, 56 pytest-тестов, 50 контактов]
+
+- **Что сделано:**
+  - Извлечение метаданных: `_extract_object_size()`, `_extract_security_info()`, `_extract_skud_info()` — regex из HTML сайтов КП
+  - 56 pytest-тестов: test_scraper, test_normalizer, test_qualifier, test_relevance — все проходят
+  - Seed-список расширен до 105 URL (было 72)
+  - Прокинуты метаданные через все коллекторы (DDG, seed, scrape_website)
+- **Результат:** 105 URL → 85 загрузились → 56 уникальных → **50 квалифицированных контактов** (цель Фазы 1 достигнута)
+- **Обновлено:**
+  - [x] `src/pass24_parser/collectors/website_scraper.py` — метаданные
+  - [x] `src/pass24_parser/collectors/ddg_search.py` — прокидка метаданных
+  - [x] `src/pass24_parser/collectors/seed_urls.py` — прокидка метаданных
+  - [x] `data/seed_urls.txt` — 105 URL
+  - [x] `tests/` — 56 тестов (4 файла)
+- **Следующие шаги:** Менеджеры обзванивают ТОП-50, проверяем актуальность контактов (>70% → переход к Фазе 2)
+
 ### [2026-04-09 — SeedUrlCollector, извлечение ФИО ЛПР, фильтры]
 
 - **Что сделано:**
