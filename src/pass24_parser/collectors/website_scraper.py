@@ -118,6 +118,54 @@ def _extract_person_name(soup: BeautifulSoup) -> tuple[str, str]:
     return "", ""
 
 
+# ─── Извлечение метаданных объекта ──────────────────────────────────────────
+
+_SIZE_RE = re.compile(
+    r"(\d{2,4})\s*(?:дом(?:ов|а|овладени[йя])?|участ(?:ков|ка)|коттедж(?:ей|а)?)",
+    re.IGNORECASE,
+)
+
+_SECURITY_KEYWORDS = [
+    "охран", "кпп", "контрольно-пропускн", "видеонаблюдени",
+    "охраняемая территори", "круглосуточная охран", "служба безопасност",
+    "пост охран",
+]
+
+_SKUD_KEYWORDS = [
+    "скуд", "система контроля доступа", "пропускная система",
+    "контроль доступа", "электронный пропуск", "турникет",
+    "шлагбаум с пропуск", "автоматический шлагбаум",
+]
+
+
+def _extract_object_size(soup: BeautifulSoup) -> int | None:
+    """Извлекает количество домов/участков из текста страницы."""
+    text = soup.get_text(separator=" ")
+    text = re.sub(r"\s+", " ", text)
+    match = _SIZE_RE.search(text)
+    if match:
+        size = int(match.group(1))
+        if 10 <= size <= 5000:
+            return size
+    return None
+
+
+def _extract_security_info(soup: BeautifulSoup) -> bool | None:
+    """Определяет наличие охраны по тексту страницы."""
+    text = soup.get_text(separator=" ").lower()
+    if any(kw in text for kw in _SECURITY_KEYWORDS):
+        return True
+    return None
+
+
+def _extract_skud_info(soup: BeautifulSoup) -> bool | None:
+    """Определяет наличие СКУД по тексту страницы."""
+    text = soup.get_text(separator=" ").lower()
+    if any(kw in text for kw in _SKUD_KEYWORDS):
+        return True
+    return None
+
+
 def get_domain(url: str) -> str:
     """Извлекает домен без www."""
     try:
@@ -216,6 +264,11 @@ def extract_contacts_from_html(soup: BeautifulSoup, base_url: str) -> dict:
     # ФИО и должность ЛПР
     contact_name, contact_role = _extract_person_name(soup)
 
+    # Метаданные объекта
+    object_size = _extract_object_size(soup)
+    has_security = _extract_security_info(soup)
+    has_skud = _extract_skud_info(soup)
+
     return {
         "phone": phone,
         "email": email,
@@ -226,6 +279,9 @@ def extract_contacts_from_html(soup: BeautifulSoup, base_url: str) -> dict:
         "description": description,
         "contact_name": contact_name,
         "contact_role": contact_role,
+        "object_size": object_size,
+        "has_security": has_security,
+        "has_skud": has_skud,
     }
 
 
@@ -325,6 +381,9 @@ async def scrape_website(url: str, object_name: str = "") -> Optional[ParsedCont
         contact_email=contacts.get("email", ""),
         contact_name=contacts.get("contact_name", ""),
         contact_role=contacts.get("contact_role", ""),
+        object_size=contacts.get("object_size"),
+        has_security=contacts.get("has_security"),
+        has_skud=contacts.get("has_skud"),
         org_name=org_name,
         sources=[url],
     )

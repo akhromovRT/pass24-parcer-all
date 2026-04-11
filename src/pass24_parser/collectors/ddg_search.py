@@ -371,6 +371,9 @@ class DdgSearchCollector(BaseCollector):
                     contact_email=contacts.get("email", ""),
                     contact_name=contacts.get("contact_name", ""),
                     contact_role=contacts.get("contact_role", ""),
+                    object_size=contacts.get("object_size"),
+                    has_security=contacts.get("has_security"),
+                    has_skud=contacts.get("has_skud"),
                     org_name=org_name if org_name != name else "",
                     sources=[url],
                 )

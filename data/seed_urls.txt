@@ -2,7 +2,7 @@
 # Формат: URL # Название КП/ТСН
 # Источник: WebSearch + ручная проверка
 # Дата обновления: 2026-04-09
-# Всего: 72 URL
+# Всего: 100+ URL
 
 # ── Проверенные при тестировании парсера ─────────────────────
 https://pokrov-vorota.ru/ # КП Покровские ворота
@@ -100,3 +100,33 @@ https://www.malenkayaitaliya.ru/ # КП Маленькая Италия
 https://www.etude-club.ru/ # КП Etude Family Club
 http://www.zaprezident.ru/ # КП Западная Резиденция
 https://www.krasnaya-usadba.ru/ # КП Красная Усадьба
+
+# ── Дополнительные URL (WebSearch, 2026-04-09) ──────────────────
+https://admiral-kp.ru/ # КП Адмирал
+https://avrora21.ru/ # КП Аврора-21
+https://poselok-avrora.ru/ # КП Аврора
+http://gribovo-delyuks.ru/ # КП Грибово Делюкс
+http://lagunapark.ru/ # КП Лагуна Парк
+http://les-sloboda.com/ # КП Лесная Слобода
+https://lesnaya-sloboda.ru/ # КП Лесная Слобода (2)
+http://www.petruhino.ru/ # КП Петрухино
+http://www.petruhino-2.ru/ # КП Петрухино-2
+http://www.poselok-ozernyy.ru/ # КП Озёрный
+http://www.sosnovyj-bor-poselok.ru/ # КП Сосновый Бор
+http://www.tishkovo-park-poselok.ru/ # КП Тишково Парк
+https://novoetishkovo.ru/ # КП Новое Тишково
+https://kp-tishkovo-ozero.ru/ # КП Тишково Озеро
+https://kp-zelenogradsky.ru/ # КП Зеленоградский
+https://kp-lisichkino.ru/ # КП Лисичкино
+https://kp-lugininopark.ru/ # КП Лугинино Парк
+https://kp-marinino.ru/ # КП Маринино
+https://olimpland.ru/ # КП Олимпленд
+https://diplomat-poselok.ru/ # КП Дипломат
+https://poselok-vinogradovo.ru/ # КП Виноградово
+https://poselok-nikolskoe.ru/ # КП Никольское (2)
+https://renpark.ru/ # КП Ренессанс Парк (2)
+http://kp-ruza-family-park.ru/ # КП Руза Фэмили Парк
+http://www.eskvayr-park.ru/ # КП Эсквайр Парк (2)
+http://www.pestovosemenovskoye-poselok.ru/ # КП Пестово-Семёновское
+https://beregsol.ru/ # КП Берег Солнца
+http://sofrino-org.ru/ # КП Софрино
