@@ -9,6 +9,50 @@
 
 ## Записи
 
+### [2026-05-05 — EgrulDadataCollector + GitHub Actions + автоэкспорт]
+
+- **Что сделано:**
+  - Создан `src/pass24_parser/collectors/egrul_dadata.py` — коллектор ТСН/СНТ/ДНП МО через dadata.ru suggest/party API
+    - 5 поисковых запросов (товарищество собственников, СНТ, ДНП, НП); пагинация до 500/запрос
+    - Фильтр МО client-side; дедупликация по ИНН через `processed_urls` (ключ = "dadata:{inn}")
+    - ФИО руководителей из `management.name` (конвертация из ALL_CAPS через `.title()`)
+    - Phones/emails при наличии в ответе dadata (платный тариф)
+  - Создан `.github/workflows/parse-leads.yml` — расписание Пн/Чт 04:00 МСК, SQLite кеш между запусками, безопасный case-based режим
+  - `cli.py` расширен: `--dadata-only`, `--all-sources`; автоэкспорт в Bitrix24 REST API при наличии `BITRIX24_WEBHOOK_URL`; порог квалификации 0.25 для режимов с dadata
+  - `qualifier.py`: параметр `threshold` в `qualify_contacts()` (default=0.4; dadata-режимы используют 0.25)
+  - `bitrix24_api.py`: ЕГРЮЛ-контакты с ФИО+ИНН проходят экспорт без телефона/email; добавлены метки региона и источника в комментарии
+  - `.env` создан с ключами dadata (из Bitrix24-migration проекта) и Bitrix24 webhook
+- **Ожидаемый результат:** +200–400 лидов/мес из ЕГРЮЛ при запуске `--dadata-only`; 2×/неделю автоматически через GitHub Actions
+- **Обновлено:**
+  - [x] `src/pass24_parser/collectors/egrul_dadata.py` (новый)
+  - [x] `.github/workflows/parse-leads.yml` (новый)
+  - [x] `src/pass24_parser/cli.py` — новые флаги, автоэкспорт
+  - [x] `src/pass24_parser/qualifier.py` — threshold параметр
+  - [x] `src/pass24_parser/exporters/bitrix24_api.py` — ЕГРЮЛ bypass + метки
+  - [x] `.env.example` — DADATA_API_KEY
+  - [x] `agent_docs/development-history.md`
+- **Следующие шаги:**
+  - Настроить GitHub Secrets: `BITRIX24_WEBHOOK_URL`, `DADATA_API_KEY`, `DADATA_SECRET_KEY`
+  - Запустить первый тест: Actions → Parse KP Leads → Run workflow → mode: dadata-only
+  - Этап 2 плана: `CatalogCollector` — автопополнение seed-списка из каталогов КП
+
+### [2026-05-05 — Экспорт в Bitrix24 REST API + защита от существующих клиентов]
+
+- **Что сделано:**
+  - Создан `src/pass24_parser/exporters/bitrix24_api.py` — REST API экспортёр лидов
+  - 73 контакта из SQLite экспортированы в Bitrix24 как лиды (стадия UC_PARSER «Парсер», источник PARSER, ответственный Павел Мельников ID=16)
+  - Создана стадия лидов «Парсер» (STATUS_ID=UC_PARSER, SORT=15, между «Новый» и «Взят в работу»)
+  - Дедупликация: 2 лида пропущено по совпадению email (crm.duplicate.findByComm)
+  - Выявлены и удалены 8 лидов, совпавших с существующими сделками Bitrix24 (по уникальным словам-якорям): КП Варежки, КП Европа, КП Николино, КП Николино Хиллз, МЖК Росинка, КП Кембридж, КП Дмитровское Полесье, КП Новые Вешки
+  - В SQLite добавлены колонки `is_existing_client` (INTEGER) и `existing_client_reason` (TEXT) — 8 записей помечено
+  - Метод матчинга: слова-якоря (≥5 символов, не нарицательные географические). Ложные срабатывания («озеро», «парк», «берег») — исключены через `_GEO_COMMON` стоп-список
+- **Результат:** 65 активных лидов в Bitrix24, раздел «Лиды → Парсер»
+- **Обновлено:**
+  - [x] `src/pass24_parser/exporters/bitrix24_api.py` (новый)
+  - [x] `data/parser.sqlite` — колонки is_existing_client, existing_client_reason
+  - [x] `agent_docs/development-history.md`
+- **Следующие шаги:** Проверить качество 65 лидов (Павел Мельников обзванивает). При следующем парсинге использовать `bitrix24_api.export_to_api()` — он автоматически пропустит существующих клиентов
+
 ### [2026-04-07 — Инициализация проекта]
 
 - **Что сделано:**
