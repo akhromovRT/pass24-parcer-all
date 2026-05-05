@@ -1,0 +1,77 @@
+name: Parse KP Leads — МО
+
+on:
+  schedule:
+    - cron: '0 1 * * 1'  # Понедельник 04:00 МСК (UTC+3)
+    - cron: '0 1 * * 4'  # Четверг   04:00 МСК (UTC+3)
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Режим запуска'
+        required: false
+        default: 'all-sources'
+        type: choice
+        options:
+          - all-sources
+          - seed-only
+          - dadata-only
+          - ddg-only
+
+jobs:
+  parse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # SQLite сохраняется между запусками — processed_urls не даёт повторных прогонов
+      - name: Restore SQLite cache
+        uses: actions/cache@v4
+        with:
+          path: data/parser.sqlite
+          key: parser-sqlite-${{ github.run_number }}
+          restore-keys: parser-sqlite-
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -e .
+
+      - name: Run parser
+        env:
+          BITRIX24_WEBHOOK_URL: ${{ secrets.BITRIX24_WEBHOOK_URL }}
+          BITRIX24_RESPONSIBLE: ${{ secrets.BITRIX24_RESPONSIBLE }}
+          DADATA_API_KEY: ${{ secrets.DADATA_API_KEY }}
+          DADATA_SECRET_KEY: ${{ secrets.DADATA_SECRET_KEY }}
+          PARSE_MODE: ${{ github.event.inputs.mode || 'all-sources' }}
+        # Безопасный case вместо интерполяции в аргумент — исключает command injection
+        run: |
+          case "$PARSE_MODE" in
+            all-sources) python -m pass24_parser --region moscow_oblast --all-sources --verbose ;;
+            seed-only)   python -m pass24_parser --region moscow_oblast --seed-only --verbose ;;
+            dadata-only) python -m pass24_parser --region moscow_oblast --dadata-only --verbose ;;
+            ddg-only)    python -m pass24_parser --region moscow_oblast --ddg-only --verbose ;;
+            *)           python -m pass24_parser --region moscow_oblast --all-sources --verbose ;;
+          esac
+
+      - name: Upload output artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: leads-report-${{ github.run_number }}
+          path: output/
+          retention-days: 30
+
+      - name: Upload SQLite snapshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sqlite-${{ github.run_number }}
+          path: data/parser.sqlite
+          retention-days: 7

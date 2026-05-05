@@ -96,10 +96,14 @@ def calculate_pre_champ_score(contact: ParsedContact) -> int:
     return max(score, 0)
 
 
-def qualify_contacts(contacts: list[ParsedContact]) -> list[ParsedContact]:
+def qualify_contacts(
+    contacts: list[ParsedContact],
+    threshold: float = QUALITY_EXPORT_THRESHOLD,
+) -> list[ParsedContact]:
     """Квалифицирует список контактов: рассчитывает scores, фильтрует по порогу.
 
-    Возвращает только записи с quality_score >= QUALITY_EXPORT_THRESHOLD (0.4).
+    threshold=0.4 по умолчанию (сайты КП).
+    threshold=0.25 для ЕГРЮЛ/dadata контактов (ФИО + ИНН без телефона).
     """
     qualified = []
     filtered_out = 0
@@ -107,13 +111,13 @@ def qualify_contacts(contacts: list[ParsedContact]) -> list[ParsedContact]:
     for contact in contacts:
         contact.quality_score = calculate_quality_score(contact)
 
-        if contact.quality_score >= QUALITY_EXPORT_THRESHOLD:
+        if contact.quality_score >= threshold:
             qualified.append(contact)
         else:
             filtered_out += 1
 
     logger.info(
-        "Квалификация: %d прошли (порог %.1f), %d отфильтрованы",
-        len(qualified), QUALITY_EXPORT_THRESHOLD, filtered_out,
+        "Квалификация: %d прошли (порог %.2f), %d отфильтрованы",
+        len(qualified), threshold, filtered_out,
     )
     return qualified
