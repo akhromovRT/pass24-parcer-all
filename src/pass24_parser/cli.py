@@ -97,7 +97,7 @@ async def run_pipeline(
     from pass24_parser.collectors.egrul_dadata import EgrulDadataCollector
     from pass24_parser.collectors.seed_urls import SeedUrlCollector
     from pass24_parser.deduplicator import deduplicate
-    from pass24_parser.enricher import enrich_contact
+    from pass24_parser.enricher import enrich_contact, enrich_from_web
     from pass24_parser.exporters.bitrix24 import export_to_csv
     from pass24_parser.http_client import close_client
     from pass24_parser.normalizer import normalize_contact
@@ -174,6 +174,21 @@ async def run_pipeline(
             all_contacts = enriched
         else:
             print("\n[3] Обогащение — пропуск (dadata уже содержит ЕГРЮЛ-данные)")
+
+        # 3b. Веб-обогащение: ищем телефон/email для контактов без контактных данных
+        no_contact = [c for c in all_contacts if not c.contact_phone and not c.contact_email]
+        if no_contact:
+            print(f"\n[3b] Веб-обогащение: {len(no_contact)} контактов без телефона/email...")
+            web_found = 0
+            for c in no_contact:
+                try:
+                    await enrich_from_web(c)
+                    if c.contact_phone or c.contact_email:
+                        web_found += 1
+                        print(f"  [+] {c.object_name[:50]}: тел={c.contact_phone or '—'}  email={c.contact_email or '—'}")
+                except Exception as exc:
+                    logger.warning("Web-обогащение '%s': %s", c.object_name, exc)
+            print(f"  Итого: нашли контакты {web_found}/{len(no_contact)}")
 
         # 4. Дедупликация
         print("\n[4] Дедупликация...")

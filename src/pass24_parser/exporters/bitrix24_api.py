@@ -320,12 +320,8 @@ def export_to_api(
         phone = contact.contact_phone or ""
         email = contact.contact_email or ""
 
-        # Нет контактных данных.
-        # Исключение: ЕГРЮЛ/dadata контакты с ФИО + ИНН достаточно верифицированы
-        # для передачи в Bitrix — sales может найти телефон вручную по ИНН.
-        is_egrul = any("egrul_dadata" in s for s in contact.sources)
-        has_egrul_id = is_egrul and bool(contact.contact_name) and bool(contact.org_inn)
-        if not phone and not email and not has_egrul_id:
+        # Нет контактных данных — пропускаем, лид без телефона/email бесполезен.
+        if not phone and not email:
             stats.skipped_no_contact += 1
             stats.details.append({"status": "ПРОПУЩЕН", "name": name, "reason": "нет телефона и email"})
             continue
