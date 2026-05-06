@@ -27,13 +27,13 @@ jobs:
         uses: actions/checkout@v4
 
       # SQLite сохраняется между запусками — processed_urls не даёт повторных прогонов
-      # v2: после исправления _GEO_COMMON ложные срабатывания убраны из кеша
+      # v3: фикс ЕГРЮЛ-таймаута (skip без ИНН) + очищены 57 зависших URL из отменённого прогона
       - name: Restore SQLite cache
         uses: actions/cache@v4
         with:
           path: data/parser.sqlite
-          key: parser-sqlite-v2-${{ github.run_number }}
-          restore-keys: parser-sqlite-v2-
+          key: parser-sqlite-v3-${{ github.run_number }}
+          restore-keys: parser-sqlite-v3-
 
       - name: Setup Python 3.12
         uses: actions/setup-python@v5

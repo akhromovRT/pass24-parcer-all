@@ -206,8 +206,9 @@ async def enrich_from_web(contact: ParsedContact) -> ParsedContact:
 
 async def enrich_contact(contact: ParsedContact) -> ParsedContact:
     """Главная функция обогащения — запускает все доступные обогатители."""
-    # ЕГРЮЛ — если есть ИНН/ОГРН или название организации
-    if contact.org_inn or contact.org_ogrn or contact.org_name:
+    # ЕГРЮЛ — только если есть ИНН или ОГРН; поиск по названию ненадёжен и
+    # блокируется с облачных IP (egrul.nalog.ru таймаутится ~18 сек каждый запрос)
+    if contact.org_inn or contact.org_ogrn:
         contact = await enrich_from_egrul(contact)
 
     return contact
