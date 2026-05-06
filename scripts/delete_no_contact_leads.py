@@ -1,7 +1,8 @@
 """Удаляет лиды парсера без телефона и email из Bitrix24.
 
 Запуск (из корня проекта, с активным venv):
-    python scripts/delete_no_contact_leads.py
+    python scripts/delete_no_contact_leads.py          # интерактивно
+    python scripts/delete_no_contact_leads.py --yes    # без подтверждения (CI)
 
 Что делает:
 - Ищет лиды с SOURCE_ID=PARSER и STATUS_ID=UC_PARSER
@@ -14,6 +15,7 @@ from __future__ import annotations
 import json
 import os
 import ssl
+import sys
 import time
 import urllib.parse
 import urllib.request
@@ -78,6 +80,8 @@ def get_parser_leads() -> list[dict]:
 
 
 def main():
+    auto_yes = "--yes" in sys.argv or os.getenv("CI") == "true"
+
     print("Загружаю лиды парсера из Bitrix24...")
     leads = get_parser_leads()
     print(f"Всего лидов SOURCE=PARSER, STATUS=UC_PARSER: {len(leads)}")
@@ -100,10 +104,13 @@ def main():
     for lead in no_contact:
         print(f"  #{lead['ID']} — {lead['TITLE']}")
 
-    confirm = input(f"\nУдалить {len(no_contact)} лидов? (yes/no): ").strip().lower()
-    if confirm != "yes":
-        print("Отменено.")
-        return
+    if not auto_yes:
+        confirm = input(f"\nУдалить {len(no_contact)} лидов? (yes/no): ").strip().lower()
+        if confirm != "yes":
+            print("Отменено.")
+            return
+    else:
+        print(f"\nАвто-подтверждение (CI). Удаляю {len(no_contact)} лидов...")
 
     deleted = 0
     for lead in no_contact:
